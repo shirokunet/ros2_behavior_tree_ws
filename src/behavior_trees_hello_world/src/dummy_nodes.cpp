@@ -13,6 +13,7 @@ BT::NodeStatus SayHello()
 {
     std::cout << "Robot says: \"Hello!!!\"" << std::endl;
     return BT::NodeStatus::SUCCESS;
+    // return BT::NodeStatus::FAILURE;
 }
 
 BT::NodeStatus CheckBattery()

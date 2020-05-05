@@ -1,11 +1,6 @@
 #include "behaviortree_cpp/xml_parsing.h"
 #include "behaviortree_cpp/blackboard/blackboard_local.h"
-
-#define MANUAL_STATIC_LINKING
-
-#ifdef MANUAL_STATIC_LINKING
 #include "behavior_trees/dummy_nodes.h"
-#endif
 
 using namespace BT;
 
@@ -17,9 +12,12 @@ const std::string xml_text = R"(
      <BehaviorTree ID="MainTree">
         <Sequence name="root_sequence">
             <SayHello       name="action_hello"/>
-            <OpenGripper    name="open_gripper"/>
-            <ApproachObject name="approach_object"/>
-            <CloseGripper   name="close_gripper"/>
+            <CheckBattery/>
+            <Sequence>
+                <OpenGripper    name="open_gripper"/>
+                <ApproachObject name="approach_object"/>
+                <CloseGripper   name="close_gripper"/>
+            </Sequence>
         </Sequence>
      </BehaviorTree>
 
@@ -30,21 +28,7 @@ const std::string xml_text = R"(
 
 int main()
 {
-    /* In this example we build a tree at run-time.
-     * The tree is defined using an XML (see xml_text).
-     * To achieve this we must first register our TreeNodes into
-     * a BehaviorTreeFactory.
-     */
     BehaviorTreeFactory factory;
-
-    /* There are two ways to register nodes:
-    *    - statically, including directly DummyNodes.
-    *    - dynamically, loading the TreeNodes from a shared library (plugin).
-    * */
-
-#ifdef MANUAL_STATIC_LINKING
-    // Note: the name used to register should be the same used in the XML.
-    // Note that the same operations could be done using DummyNodes::RegisterNodes(factory)
 
     using namespace DummyNodes;
 
@@ -57,11 +41,6 @@ int main()
     factory.registerSimpleAction("CloseGripper", std::bind(&GripperInterface::close, &gripper));
 
     factory.registerNodeType<ApproachObject>("ApproachObject");
-
-#else
-    // Load dynamically a plugin and register the TreeNodes it contains
-    factory.registerFromPlugin("./libdummy_nodes.so");
-#endif
 
     // IMPORTANT: when the object tree goes out of scope, all the TreeNodes are destroyed
     auto tree = buildTreeFromText(factory, xml_text);
