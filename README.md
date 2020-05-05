@@ -8,6 +8,7 @@ Minimal workspace for learning behavior tree for ROS2.
 ## Build and Run
 ```
 $ colcon build
+$ . install/local_setup.bash
 $ ros2 run behavior_trees_hello_world factory_tree
 Robot says: "Hello!!!"
 GripperInterface::open
